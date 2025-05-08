@@ -118,23 +118,6 @@ export default defineConfig({
             protocol: 'ah-expenses',
             url: '/expense?data=%s'
           }
-        ],
-        widgets: [
-          {
-            name: 'Quick Entry',
-            short_name: 'Quick Entry',
-            description: 'Quickly add income, expenses, and transfers',
-            icons: [
-              {
-                src: 'android-launchericon-192-192.png',
-                sizes: '192x192',
-                type: 'image/png',
-                purpose: 'any'
-              }
-            ],
-            data: 'widget.json',
-            auth: false
-          }
         ]
       },
       workbox: {
@@ -175,6 +158,12 @@ export default defineConfig({
       devOptions: {
         enabled: true,
         type: 'module'
+      },
+      includeManifestIcons: true,
+      strategies: 'injectManifest',
+      injectRegister: 'auto',
+      injectManifest: {
+        injectionPoint: undefined
       }
     })
   ],
