@@ -515,17 +515,54 @@ const Records: React.FC = () => {
 // Calculator input component
 function LuxuryCalculatorInput({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   const [input, setInput] = useState<string>(value || '0');
+
+  const calculateResult = (expression: string): string => {
+    try {
+      // Replace × with * and ÷ with /
+      const sanitizedExpression = expression.replace(/×/g, '*').replace(/÷/g, '/');
+      
+      // Split the expression into numbers and operators
+      const tokens = sanitizedExpression.match(/(\d*\.?\d+|[+\-*/])/g) || [];
+      
+      if (tokens.length === 0) return '0';
+      
+      let result = parseFloat(tokens[0]);
+      
+      for (let i = 1; i < tokens.length; i += 2) {
+        const operator = tokens[i];
+        const operand = parseFloat(tokens[i + 1] || '0');
+        
+        switch (operator) {
+          case '+':
+            result += operand;
+            break;
+          case '-':
+            result -= operand;
+            break;
+          case '*':
+            result *= operand;
+            break;
+          case '/':
+            if (operand === 0) throw new Error('Division by zero');
+            result /= operand;
+            break;
+          default:
+            throw new Error('Invalid operator');
+        }
+      }
+      
+      return result.toString();
+    } catch {
+      return '0';
+    }
+  };
+
   const handleButton = (val: string) => {
     if (val === 'C') setInput('0');
     else if (val === '=') {
-      try {
-        // eslint-disable-next-line no-eval
-        const result = eval(input).toString();
-        setInput(result);
-        onChange(result);
-      } catch {
-        setInput('0');
-      }
+      const result = calculateResult(input);
+      setInput(result);
+      onChange(result);
     } else if (val === '⌫') {
       setInput(input.length > 1 ? input.slice(0, -1) : '0');
     } else {
@@ -535,6 +572,7 @@ function LuxuryCalculatorInput({ value, onChange }: { value: string; onChange: (
     if (val === 'C') onChange('0');
     if (val === '⌫') onChange(input.length > 1 ? input.slice(0, -1) : '0');
   };
+
   const keys = [
     ['+', '7', '8', '9'],
     ['-', '4', '5', '6'],
@@ -543,6 +581,7 @@ function LuxuryCalculatorInput({ value, onChange }: { value: string; onChange: (
     ['C', '⌫']
   ];
   const opMap: Record<string, string> = { '×': '*', '÷': '/' };
+
   return (
     <div className="w-full flex flex-col items-center">
       <div className="luxury-calc-container-pro w-full max-w-md mx-auto rounded-2xl shadow-xl border border-[var(--glass-border)]/60 bg-gradient-to-br from-[var(--background)]/90 via-white/60 to-[var(--background)]/95 backdrop-blur-xl p-6 mb-2">

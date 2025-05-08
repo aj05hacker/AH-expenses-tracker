@@ -1,14 +1,33 @@
+/// <reference types="node" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import { fileURLToPath } from 'url';
+import { dirname, resolve } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/', // Use root for Vercel and static hosts
+  base: '/', // Base public path when served in production
   plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: 'auto',
+      strategies: 'injectManifest',
+      srcDir: 'src',
+      filename: 'sw.ts',
+      injectManifest: {
+        swSrc: 'src/sw.ts',
+        swDest: 'sw.js',
+        injectionPoint: undefined,
+        additionalManifestEntries: [
+          { url: '/', revision: '1' },
+          { url: '/index.html', revision: '1' }
+        ]
+      },
       includeAssets: [
         'favicon.ico',
         'apple-touch-icon.png',
@@ -19,53 +38,30 @@ export default defineConfig({
         'android-launchericon-144-144.png',
         'android-launchericon-192-192.png',
         'android-launchericon-512-512.png',
-        'widget.json'
+        'pwa-192x192.png',
+        'pwa-512x512.png',
+        'pwa-maskable-192x192.png',
+        'pwa-maskable-512x512.png'
       ],
       manifest: {
         name: 'AH Expenses Tracker',
         short_name: 'AH Expenses',
-        description: 'Luxury, glassmorphic, mobile-first expense tracker. Persistent, private, and installable.',
-        theme_color: '#0ea5e9',
+        description: 'Track your daily expenses with ease',
+        theme_color: '#ffffff',
         background_color: '#ffffff',
         display: 'standalone',
-        display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
         orientation: 'portrait',
-        start_url: '/',
         scope: '/',
-        id: 'ah-expenses-tracker',
+        start_url: '/',
         icons: [
           {
-            src: 'android-launchericon-48-48.png',
-            sizes: '48x48',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: 'android-launchericon-72-72.png',
-            sizes: '72x72',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: 'android-launchericon-96-96.png',
-            sizes: '96x96',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: 'android-launchericon-144-144.png',
-            sizes: '144x144',
-            type: 'image/png',
-            purpose: 'any'
-          },
-          {
-            src: 'android-launchericon-192-192.png',
+            src: 'pwa-192x192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: 'android-launchericon-512-512.png',
+            src: 'pwa-512x512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
@@ -94,29 +90,16 @@ export default defineConfig({
         categories: ['finance', 'productivity', 'utilities'],
         lang: 'en',
         dir: 'ltr',
-        prefer_related_applications: false,
-        iarc_rating_id: 'e84b072d-71b3-4d3e-86ae-31a8ce4e53b7',
-        launch_handler: {
-          client_mode: ['auto', 'focus-existing']
-        },
+        display_override: ['window-controls-overlay'],
         edge_side_panel: {
           preferred_width: 400
         },
         file_handlers: [
           {
-            action: '/expense-import',
+            action: '/',
             accept: {
-              'text/csv': ['.csv'],
-              'application/json': ['.json'],
-              'application/vnd.ms-excel': ['.xls', '.xlsx']
+              'text/csv': ['.csv']
             }
-          }
-        ],
-        handle_links: 'preferred',
-        protocol_handlers: [
-          {
-            protocol: 'ah-expenses',
-            url: '/expense?data=%s'
           }
         ]
       },
@@ -138,11 +121,24 @@ export default defineConfig({
             }
           },
           {
-            urlPattern: /^https:\/\/api\./i,
+            urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'gstatic-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
+          },
+          {
+            urlPattern: /^https:\/\/api\.example\.com\/.*/i,
             handler: 'NetworkFirst',
             options: {
               cacheName: 'api-cache',
-              networkTimeoutSeconds: 10,
               expiration: {
                 maxEntries: 100,
                 maxAgeSeconds: 60 * 60 * 24 // 24 hours
@@ -152,22 +148,32 @@ export default defineConfig({
               }
             }
           }
-        ],
-        navigationPreload: true
+        ]
       },
       devOptions: {
         enabled: true,
         type: 'module'
-      },
-      includeManifestIcons: true,
-      strategies: 'injectManifest',
-      injectRegister: 'auto',
-      injectManifest: {
-        injectionPoint: undefined
       }
     })
   ],
-  optimizeDeps: {
-    exclude: ['lucide-react'],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './src')
+    }
   },
+  optimizeDeps: {
+    exclude: ['lucide-react']
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-slot'],
+          utils: ['date-fns', 'sonner', 'lucide-react']
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  }
 });

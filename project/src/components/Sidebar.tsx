@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { X, Settings, Download, Upload, Sun, Moon, Home, List, PieChart, DollarSign, User, FolderPlus } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { db } from '../db/db';
 
 const navLinks = [
   { to: '/', label: 'Dashboard', icon: <Home size={20} /> },
@@ -25,7 +26,6 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   // Backup logic (export)
   const handleBackup = async () => {
     try {
-      const { db } = await import('../db/db');
       const categories = await db.categories.toArray();
       const transactions = await db.transactions.toArray();
       const data = { categories, transactions, exportDate: new Date().toISOString() };
@@ -57,7 +57,6 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
       const text = await file.text();
       const data = JSON.parse(text);
       if (!data.categories || !data.transactions) throw new Error('Invalid backup file.');
-      const { db } = await import('../db/db');
       await db.categories.clear();
       await db.transactions.clear();
       await db.categories.bulkAdd(data.categories);
