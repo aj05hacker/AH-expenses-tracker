@@ -1,7 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { X, Settings, Download, Upload, Sun, Moon, Home, List, PieChart, DollarSign, User, FolderPlus } from 'lucide-react';
+import { X, Settings, Download, Upload, Sun, Moon, Home, List, PieChart, DollarSign, User, FolderPlus, Bell } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import { db } from '../db/db';
+import { notificationService } from '../services/notificationService';
 
 const navLinks = [
   { to: '/', label: 'Dashboard', icon: <Home size={20} /> },
@@ -22,6 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
   const { theme, toggleTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; msg: string } | null>(null);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
   // Backup logic (export)
   const handleBackup = async () => {
@@ -69,6 +71,17 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
     setTimeout(() => setToast(null), 3000);
   };
 
+  // Handle notification toggle
+  const handleNotificationToggle = async () => {
+    if (notificationsEnabled) {
+      await notificationService.unsubscribeFromPushNotifications();
+      setNotificationsEnabled(false);
+    } else {
+      await notificationService.subscribeToPushNotifications();
+      setNotificationsEnabled(true);
+    }
+  };
+
   return (
     <div className={`fixed inset-0 z-50 transition-all duration-300 ${open ? 'pointer-events-auto' : 'pointer-events-none'}`}>
       {/* Overlay */}
@@ -98,6 +111,9 @@ const Sidebar: React.FC<SidebarProps> = ({ open, onClose }) => {
           </button>
           <button onClick={handleRestoreClick} className="flex items-center gap-3 text-lg font-medium text-[var(--text-primary)] hover:text-accent transition-colors rounded-xl px-3 py-2 hover:bg-accent/10">
             <Upload size={20} /> Restore
+          </button>
+          <button onClick={handleNotificationToggle} className={`flex items-center gap-3 text-lg font-medium text-[var(--text-primary)] ${notificationsEnabled ? 'text-primary' : ''} hover:text-primary transition-colors rounded-xl px-3 py-2 hover:bg-primary/10`}>
+            <Bell size={20} /> {notificationsEnabled ? 'Notifications Enabled' : 'Enable Notifications'}
           </button>
           <input ref={fileInputRef} type="file" accept="application/json" className="hidden" onChange={handleRestore} />
         </div>

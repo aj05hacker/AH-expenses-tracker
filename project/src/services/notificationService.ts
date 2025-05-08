@@ -1,18 +1,6 @@
 import { toast } from 'sonner';
 
-const NOTIFICATION_INTERVAL = 3 * 60 * 60 * 1000; // 3 hours in milliseconds
-
-interface NotificationAction {
-  action: string;
-  title: string;
-}
-
-interface NotificationEvent extends Event {
-  action: string;
-}
-
 class NotificationService {
-  private notificationTimer: number | null = null;
   private isPermissionGranted = false;
 
   async requestPermission(): Promise<boolean> {
@@ -26,7 +14,7 @@ class NotificationService {
     }
   }
 
-  async scheduleReminder(): Promise<void> {
+  async subscribeToPushNotifications(): Promise<void> {
     if (!this.isPermissionGranted) {
       const granted = await this.requestPermission();
       if (!granted) {
@@ -35,43 +23,41 @@ class NotificationService {
       }
     }
 
-    // Clear any existing timer
-    if (this.notificationTimer) {
-      window.clearInterval(this.notificationTimer);
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: 'YOUR_VAPID_PUBLIC_KEY' // Replace with your VAPID public key
+      });
+
+      // Send the subscription to your server
+      await fetch('/api/push-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(subscription)
+      });
+
+      toast.success('Successfully subscribed to notifications!');
+    } catch (error) {
+      console.error('Error subscribing to push notifications:', error);
+      toast.error('Failed to subscribe to notifications');
     }
-
-    // Schedule new reminder
-    this.notificationTimer = window.setInterval(() => {
-      this.showReminder();
-    }, NOTIFICATION_INTERVAL);
-
-    // Show initial reminder
-    this.showReminder();
   }
 
-  private showReminder(): void {
-    if (!this.isPermissionGranted) return;
-
-    const notification = new Notification('AH Expenses Reminder', {
-      body: 'Don\'t forget to track your expenses! Tap to open the app.',
-      icon: '/android-launchericon-192-192.png',
-      badge: '/android-launchericon-48-48.png',
-      tag: 'expense-reminder',
-      requireInteraction: true
-    });
-
-    notification.onclick = () => {
-      window.focus();
-      notification.close();
-      // Navigate to the expense page
-      window.location.href = '/expense/new';
-    };
-  }
-
-  stopReminder(): void {
-    if (this.notificationTimer) {
-      window.clearInterval(this.notificationTimer);
-      this.notificationTimer = null;
+  async unsubscribeFromPushNotifications(): Promise<void> {
+    try {
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      
+      if (subscription) {
+        await subscription.unsubscribe();
+        toast.success('Successfully unsubscribed from notifications');
+      }
+    } catch (error) {
+      console.error('Error unsubscribing from push notifications:', error);
+      toast.error('Failed to unsubscribe from notifications');
     }
   }
 }
