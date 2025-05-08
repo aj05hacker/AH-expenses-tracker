@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import BottomNav from './BottomNav';
 import Sidebar from './Sidebar';
+import TopBar from './TopBar';
 import { Menu, Plus, ArrowLeft, TrendingUp, TrendingDown, ArrowDownUp, Tag, Wallet, CheckCircle, ArrowRight } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, Transaction } from '../db/db';
@@ -102,19 +103,12 @@ const Layout: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Menu Button */}
-      <button
-        className="fixed top-5 left-4 z-50 p-3 rounded-full bg-white/80 shadow-lg border border-white/40 hover:bg-primary/10 transition-all"
-        onClick={() => setSidebarOpen(true)}
-        aria-label="Open menu"
-      >
-        <Menu size={26} className="text-[#232946]" />
-      </button>
+      <TopBar onMenuClick={() => setSidebarOpen(true)} />
       <Sidebar
         open={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />
-      <main className="flex-1 min-h-0 overflow-y-auto container mx-auto px-4 pb-28 md:pb-8">
+      <main className="flex-1 min-h-0 overflow-y-auto container mx-auto px-4 pb-28 md:pb-8 pt-16">
         <Outlet />
       </main>
       <BottomNav />
