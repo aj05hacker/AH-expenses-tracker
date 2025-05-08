@@ -27,6 +27,7 @@ export default defineConfig({
         theme_color: '#0ea5e9',
         background_color: '#ffffff',
         display: 'standalone',
+        display_override: ['window-controls-overlay', 'standalone', 'minimal-ui'],
         orientation: 'portrait',
         start_url: '/',
         scope: '/',
@@ -96,7 +97,27 @@ export default defineConfig({
         iarc_rating_id: 'e84b072d-71b3-4d3e-86ae-31a8ce4e53b7',
         launch_handler: {
           client_mode: ['auto', 'focus-existing']
-        }
+        },
+        edge_side_panel: {
+          preferred_width: 400
+        },
+        file_handlers: [
+          {
+            action: '/expense-import',
+            accept: {
+              'text/csv': ['.csv'],
+              'application/json': ['.json'],
+              'application/vnd.ms-excel': ['.xls', '.xlsx']
+            }
+          }
+        ],
+        handle_links: 'preferred',
+        protocol_handlers: [
+          {
+            protocol: 'ah-expenses',
+            url: '/expense?data=%s'
+          }
+        ]
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
