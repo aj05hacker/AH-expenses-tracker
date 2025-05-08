@@ -30,6 +30,7 @@ export default defineConfig({
         orientation: 'portrait',
         start_url: '/',
         scope: '/',
+        id: 'ah-expenses-tracker',
         icons: [
           {
             src: 'android-launchericon-48-48.png',
@@ -91,7 +92,11 @@ export default defineConfig({
         categories: ['finance', 'productivity', 'utilities'],
         lang: 'en',
         dir: 'ltr',
-        prefer_related_applications: false
+        prefer_related_applications: false,
+        iarc_rating_id: 'e84b072d-71b3-4d3e-86ae-31a8ce4e53b7',
+        launch_handler: {
+          client_mode: ['auto', 'focus-existing']
+        }
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
@@ -109,8 +114,24 @@ export default defineConfig({
                 statuses: [0, 200]
               }
             }
+          },
+          {
+            urlPattern: /^https:\/\/api\./i,
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'api-cache',
+              networkTimeoutSeconds: 10,
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 // 24 hours
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
           }
-        ]
+        ],
+        navigationPreload: true
       }
     })
   ],

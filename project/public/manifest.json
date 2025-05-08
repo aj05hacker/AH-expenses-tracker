@@ -8,6 +8,7 @@
   "theme_color": "#0ea5e9",
   "orientation": "portrait",
   "scope": "/",
+  "id": "ah-expenses-tracker",
   "icons": [
     {
       "src": "android-launchericon-48-48.png",
@@ -69,5 +70,9 @@
   "categories": ["finance", "productivity", "utilities"],
   "lang": "en",
   "dir": "ltr",
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "iarc_rating_id": "e84b072d-71b3-4d3e-86ae-31a8ce4e53b7",
+  "launch_handler": {
+    "client_mode": ["auto", "focus-existing"]
+  }
 } 
