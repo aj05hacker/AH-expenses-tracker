@@ -171,6 +171,10 @@ export default defineConfig({
           }
         ],
         navigationPreload: true
+      },
+      devOptions: {
+        enabled: true,
+        type: 'module'
       }
     })
   ],
