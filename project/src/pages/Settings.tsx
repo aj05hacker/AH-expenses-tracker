@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { db } from '../db/db';
 import { useTheme } from '../context/ThemeContext';
 import { Download, Trash2, ArrowLeft, Moon, Sun, AlertTriangle, Globe } from 'lucide-react';
@@ -25,7 +25,19 @@ const getStoredCurrency = () => {
 const Settings: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
   
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   // Currency state (must be inside component)
   const [currency, setCurrency] = useState(getStoredCurrency());
   const handleCurrencyChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -313,28 +325,32 @@ const Settings: React.FC = () => {
           <div className="space-y-2 text-text-secondary text-sm mb-3">
             <p className="mt-2">This app is crafted with passion and luxury UI by Abdul Hajees. For feedback, feature requests, or support, feel free to reach out!</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
-            <a
-              href="https://paypal.me/abdulhajeess"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-secondary px-6 py-3 rounded-xl font-bold text-lg flex items-center gap-2 shadow-lg hover:scale-105 transition-transform mt-2 justify-center"
-              style={{ minWidth: 180 }}
-            >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="12" fill="#003087"/><path d="M7.5 17.5L8.5 7.5H15.5C17.5 7.5 18.5 8.5 18.5 10.5C18.5 12.5 17.5 13.5 15.5 13.5H10.5L10 17.5H7.5Z" fill="#fff"/><path d="M10.5 13.5L11 9.5H15.5C16.5 9.5 17 10 17 10.5C17 11 16.5 11.5 15.5 11.5H11.5L11 13.5H10.5Z" fill="#009cde"/></svg>
-              Buy me a coffee ☕
-            </a>
-            <a
-              href="https://abdulhajees.in"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-outline px-6 py-3 rounded-xl font-bold text-lg flex items-center gap-2 shadow hover:scale-105 transition-transform mt-2 justify-center border-accent text-accent"
-              style={{ minWidth: 180 }}
-            >
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/><polyline points="17 8 9 16 7 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
-              Contact Me
-            </a>
-          </div>
+          {isOnline ? (
+            <div className="flex flex-col sm:flex-row gap-3 w-full justify-center">
+              <a
+                href="https://paypal.me/abdulhajeess"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary px-6 py-3 rounded-xl font-bold text-lg flex items-center gap-2 shadow-lg hover:scale-105 transition-transform mt-2 justify-center"
+                style={{ minWidth: 180 }}
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="12" fill="#003087"/><path d="M7.5 17.5L8.5 7.5H15.5C17.5 7.5 18.5 8.5 18.5 10.5C18.5 12.5 17.5 13.5 15.5 13.5H10.5L10 17.5H7.5Z" fill="#fff"/><path d="M10.5 13.5L11 9.5H15.5C16.5 9.5 17 10 17 10.5C17 11 16.5 11.5 15.5 11.5H11.5L11 13.5H10.5Z" fill="#009cde"/></svg>
+                Buy me a coffee ☕
+              </a>
+              <a
+                href="https://abdulhajees.in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-outline px-6 py-3 rounded-xl font-bold text-lg flex items-center gap-2 shadow hover:scale-105 transition-transform mt-2 justify-center border-accent text-accent"
+                style={{ minWidth: 180 }}
+              >
+                <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/><polyline points="17 8 9 16 7 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/></svg>
+                Contact Me
+              </a>
+            </div>
+          ) : (
+            <div className="text-warning">You are offline. Online links are not available.</div>
+          )}
         </div>
       </div>
       
