@@ -165,14 +165,6 @@ export default defineConfig({
     exclude: ['lucide-react']
   },
   build: {
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          utils: ['date-fns', 'sonner', 'lucide-react']
-        }
-      }
-    },
     chunkSizeWarningLimit: 1000
   }
 });
