@@ -9,7 +9,17 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
+      includeAssets: [
+        'favicon.ico',
+        'apple-touch-icon.png',
+        'mask-icon.svg',
+        'android-launchericon-48-48.png',
+        'android-launchericon-72-72.png',
+        'android-launchericon-96-96.png',
+        'android-launchericon-144-144.png',
+        'android-launchericon-192-192.png',
+        'android-launchericon-512-512.png'
+      ],
       manifest: {
         name: 'AH Expenses Tracker',
         short_name: 'AH Expenses',
@@ -22,13 +32,37 @@ export default defineConfig({
         scope: '/',
         icons: [
           {
-            src: 'pwa-192x192.png',
+            src: 'android-launchericon-48-48.png',
+            sizes: '48x48',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'android-launchericon-72-72.png',
+            sizes: '72x72',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'android-launchericon-96-96.png',
+            sizes: '96x96',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'android-launchericon-144-144.png',
+            sizes: '144x144',
+            type: 'image/png',
+            purpose: 'any'
+          },
+          {
+            src: 'android-launchericon-192-192.png',
             sizes: '192x192',
             type: 'image/png',
             purpose: 'any'
           },
           {
-            src: 'pwa-512x512.png',
+            src: 'android-launchericon-512-512.png',
             sizes: '512x512',
             type: 'image/png',
             purpose: 'any'
@@ -44,6 +78,37 @@ export default defineConfig({
             sizes: '512x512',
             type: 'image/png',
             purpose: 'maskable'
+          }
+        ],
+        screenshots: [
+          {
+            src: 'android-launchericon-512-512.png',
+            sizes: '512x512',
+            type: 'image/png',
+            form_factor: 'wide'
+          }
+        ],
+        categories: ['finance', 'productivity', 'utilities'],
+        lang: 'en',
+        dir: 'ltr',
+        prefer_related_applications: false
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,json}'],
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+              },
+              cacheableResponse: {
+                statuses: [0, 200]
+              }
+            }
           }
         ]
       }
