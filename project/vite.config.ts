@@ -18,7 +18,8 @@ export default defineConfig({
         'android-launchericon-96-96.png',
         'android-launchericon-144-144.png',
         'android-launchericon-192-192.png',
-        'android-launchericon-512-512.png'
+        'android-launchericon-512-512.png',
+        'widget.json'
       ],
       manifest: {
         name: 'AH Expenses Tracker',
@@ -116,6 +117,23 @@ export default defineConfig({
           {
             protocol: 'ah-expenses',
             url: '/expense?data=%s'
+          }
+        ],
+        widgets: [
+          {
+            name: 'Quick Entry',
+            short_name: 'Quick Entry',
+            description: 'Quickly add income, expenses, and transfers',
+            icons: [
+              {
+                src: 'android-launchericon-192-192.png',
+                sizes: '192x192',
+                type: 'image/png',
+                purpose: 'any'
+              }
+            ],
+            data: 'widget.json',
+            auth: false
           }
         ]
       },
