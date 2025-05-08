@@ -1,5 +1,7 @@
 {
   "routes": [
+    { "src": "/manifest.json", "dest": "/manifest.json" },
+    { "src": "/ah_expense_gold_logo.png", "dest": "/ah_expense_gold_logo.png" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 } 
